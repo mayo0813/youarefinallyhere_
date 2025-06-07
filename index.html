@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>you are finally here</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 100;
+            font-size: 16px;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 100;
+            font-size: 12px;
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 32px;
+            text-align: center;
+            z-index: 200;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            display: none;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+        .glitch-1 {
+            position: relative;
+        }
+        .glitch-1::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanlines 0.1s linear infinite;
+        }
+        .glitch-2 {
+            position: relative;
+        }
+        .glitch-2::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.05) 50%);
+            background-size: 100% 3px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanlines 0.08s linear infinite;
+        }
+        .glitch-2::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, transparent 1px, rgba(255,255,255,0.15) 1px);
+            background-size: 4px 4px;
+            pointer-events: none;
+            z-index: 999;
+            animation: staticnoise 0.2s linear infinite;
+        }
+        .glitch-3 {
+            position: relative;
+        }
+        .glitch-3::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(255, 0, 0, 0.08) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanlines 0.06s linear infinite;
+        }
+        .glitch-3::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, transparent 1px, rgba(255,255,255,0.25) 1px);
+            background-size: 3px 3px;
+            pointer-events: none;
+            z-index: 999;
+            animation: staticnoise 0.15s linear infinite, vhsglitch 0.3s linear infinite;
+        }
+        .glitch-4 {
+            position: relative;
+            animation: vhsglitch-extreme 0.2s linear infinite;
+        }
+        .glitch-4::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 0, 0, 0.1) 2px,
+                    rgba(255, 0, 0, 0.1) 3px,
+                    transparent 3px,
+                    transparent 6px,
+                    rgba(0, 255, 0, 0.1) 6px,
+                    rgba(0, 255, 0, 0.1) 7px,
+                    transparent 7px,
+                    transparent 10px,
+                    rgba(0, 0, 255, 0.1) 10px,
+                    rgba(0, 0, 255, 0.1) 11px,
+                    transparent 11px,
+                    transparent 14px
+                );
+            pointer-events: none;
+            z-index: 1000;
+            animation: horizontalglitch 0.3s linear infinite;
+        }
+        .glitch-4::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 1px,
+                    rgba(255, 255, 255, 0.05) 1px,
+                    rgba(255, 255, 255, 0.05) 2px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 4px,
+                    rgba(0, 0, 0, 0.1) 4px,
+                    rgba(0, 0, 0, 0.1) 5px
+                );
+            pointer-events: none;
+            z-index: 999;
+            animation: rgbshift 0.15s linear infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+        @keyframes staticnoise {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-1px, 1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+        @keyframes vhsglitch {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            10% { transform: translate(-2px, 0); filter: hue-rotate(30deg); }
+            20% { transform: translate(2px, 0); filter: hue-rotate(60deg); }
+            30% { transform: translate(-1px, 0); filter: hue-rotate(90deg); }
+            40% { transform: translate(1px, 0); filter: hue-rotate(120deg); }
+            50% { transform: translate(0); filter: hue-rotate(180deg); }
+            60% { transform: translate(-1px, 0); filter: hue-rotate(210deg); }
+            70% { transform: translate(2px, 0); filter: hue-rotate(240deg); }
+            80% { transform: translate(-2px, 0); filter: hue-rotate(270deg); }
+            90% { transform: translate(1px, 0); filter: hue-rotate(300deg); }
+            100% { transform: translate(0); filter: hue-rotate(360deg); }
+        }
+        @keyframes horizontalglitch {
+            0% { transform: translateX(0); opacity: 0.8; }
+            10% { transform: translateX(-3px); opacity: 0.9; }
+            20% { transform: translateX(2px); opacity: 0.7; }
+            30% { transform: translateX(-1px); opacity: 0.8; }
+            40% { transform: translateX(4px); opacity: 0.6; }
+            50% { transform: translateX(-2px); opacity: 0.9; }
+            60% { transform: translateX(1px); opacity: 0.7; }
+            70% { transform: translateX(-3px); opacity: 0.8; }
+            80% { transform: translateX(3px); opacity: 0.6; }
+            90% { transform: translateX(-1px); opacity: 0.9; }
+            100% { transform: translateX(0); opacity: 0.8; }
+        }
+        @keyframes rgbshift {
+            0% { 
+                transform: translate(0, 0);
+                filter: hue-rotate(0deg);
+            }
+            25% { 
+                transform: translate(-1px, 0);
+                filter: hue-rotate(90deg);
+            }
+            50% { 
+                transform: translate(1px, 0);
+                filter: hue-rotate(180deg);
+            }
+            75% { 
+                transform: translate(0, -1px);
+                filter: hue-rotate(270deg);
+            }
+            100% { 
+                transform: translate(0, 0);
+                filter: hue-rotate(360deg);
+            }
+        }
+        @keyframes vhsglitch-extreme {
+            0% { transform: translate(0) skew(0deg); filter: saturate(1.5) contrast(1.2); }
+            10% { transform: translate(-2px, 0) skew(0.3deg); filter: saturate(1.8) contrast(1.3); }
+            20% { transform: translate(1px, 0) skew(-0.2deg); filter: saturate(1.6) contrast(1.4); }
+            30% { transform: translate(-1px, 0) skew(0.4deg); filter: saturate(1.9) contrast(1.2); }
+            40% { transform: translate(2px, 0) skew(-0.3deg); filter: saturate(1.7) contrast(1.5); }
+            50% { transform: translate(-2px, 0) skew(0.2deg); filter: saturate(1.8) contrast(1.3); }
+            60% { transform: translate(1px, 0) skew(-0.4deg); filter: saturate(1.6) contrast(1.4); }
+            70% { transform: translate(-1px, 0) skew(0.3deg); filter: saturate(1.9) contrast(1.2); }
+            80% { transform: translate(2px, 0) skew(-0.2deg); filter: saturate(1.7) contrast(1.5); }
+            90% { transform: translate(-1px, 0) skew(0.4deg); filter: saturate(1.8) contrast(1.3); }
+            100% { transform: translate(0) skew(0deg); filter: saturate(1.5) contrast(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="ui">
+        <div>like: <span id="likes">0</span>/5</div>
+        <div>them: <span id="glitches">0</span>/4</div>
+        <div>us: <span id="allies">0</span>/4</div>
+    </div>
+    
+    <div id="controls">
+        <div><strong>조작법</strong></div>
+        <div><strong>WASD</strong> - 이동</div>
+        <div><strong>마우스</strong> - 시점 회전</div>
+        <div><small>화면을 클릭해서 마우스 잠금 활성화</small></div>
+    </div>
+    
+    <div id="message"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 전역 변수
+        let scene, camera, renderer;
+        let player, maze = [];
+        let keys = {};
+        let moveSpeed = 0.08;
+        let gameState = {
+            likes: 0,
+            glitches: 0,
+            allies: 0,
+            gameOver: false,
+            gameWon: false
+        };
+
+        // 게임 오브제들
+        let gameObjects = {
+            likes: [],
+            others: [],
+            allies: [],
+            allyPositions: []
+        };
+
+        // 미로 구조 - 더 큰 미로
+        const mazeLayout = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+            [1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],
+            [1,0,1,0,0,0,1,0,0,0,0,0,1,0,1],
+            [1,0,1,1,1,1,1,1,1,0,1,0,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+            [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1],
+            [1,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+            [1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],
+            [1,0,1,0,0,0,1,0,0,0,0,0,1,0,1],
+            [1,0,1,1,1,0,1,1,1,1,1,0,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        // 초기화
+        function init() {
+            // Scene 생성
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x202020, 10, 50);
+
+            // Camera 생성
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            // Renderer 생성
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x111111);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // 플레이어 설정
+            player = new THREE.Object3D();
+            player.position.set(4.5, 1, 4.5); // 확실히 빈 공간에서 시작
+            player.add(camera);
+            scene.add(player);
+
+            // 미로 생성
+            createMaze();
+
+            // 게임 오브제 생성
+            createGameObjects();
+
+            // 조명 설정
+            setupLighting();
+
+            // 이벤트 리스너
+            setupEventListeners();
+
+            // 애니메이션 시작
+            animate();
+        }
+
+        function createMaze() {
+            const wallHeight = 3;
+            const cellSize = 3;
+
+            // 재료들
+            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x4a6741 }); // 녹색 벽
+            const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 }); // 어두운 바닥
+            const ceilingMaterial = new THREE.MeshLambertMaterial({ color: 0x1a1a1a }); // 어두운 천장
+
+            // 바닥과 천장
+            const totalWidth = mazeLayout[0].length * cellSize;
+            const totalHeight = mazeLayout.length * cellSize;
+            
+            const floorGeometry = new THREE.PlaneGeometry(totalWidth, totalHeight);
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.set(totalWidth / 2, 0, totalHeight / 2);
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            const ceiling = new THREE.Mesh(floorGeometry, ceilingMaterial);
+            ceiling.rotation.x = Math.PI / 2;
+            ceiling.position.set(totalWidth / 2, wallHeight, totalHeight / 2);
+            scene.add(ceiling);
+
+            // 벽 생성
+            for (let row = 0; row < mazeLayout.length; row++) {
+                maze[row] = [];
+                for (let col = 0; col < mazeLayout[row].length; col++) {
+                    maze[row][col] = mazeLayout[row][col];
+                    
+                    if (mazeLayout[row][col] === 1) {
+                        const wallGeometry = new THREE.BoxGeometry(cellSize, wallHeight, cellSize);
+                        const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+                        wall.position.set(
+                            col * cellSize + cellSize / 2,
+                            wallHeight / 2,
+                            row * cellSize + cellSize / 2
+                        );
+                        wall.castShadow = true;
+                        wall.receiveShadow = true;
+                        scene.add(wall);
+                    }
+                }
+            }
+        }
+
+        // 좋아요 오브제 생성 (사용자 제공 패턴으로 수정)
+        function createLikeObject() {
+            const group = new THREE.Group();
+            const geometry = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+            const material = new THREE.MeshLambertMaterial({ color: 0x4267B2 });
+            
+            // 사용자 제공 따봉 패턴 (14x14)
+            const thumbsUpPattern = [
+                [0,0,0,0,0,0,1,1,0,0,0,0,0,0], // 행 0: 엄지 끝 (수직)
+                [0,0,0,0,0,0,1,1,0,0,0,0,0,0], // 행 1: 엄지 상단 (수직)
+                [0,0,0,0,0,0,1,1,0,0,0,0,0,0], // 행 2: 엄지 중간 (수직)
+                [0,0,0,0,0,1,1,1,0,0,0,0,0,0], // 행 3: 엄지 확장 (자연스러운 연결 시작)
+                [0,0,0,1,1,1,1,0,0,0,0,0,0,0], // 행 4: 엄지 하단 (더 넓게 연결)
+                [0,1,1,1,1,1,1,1,1,1,1,0,0,0], // 행 5: 연결부 상단 (주먹과 연결)
+                [0,1,1,1,1,1,1,1,1,1,1,1,0,0], // 행 6: 연결부 중단 (첫번째 픽셀 제거, 11픽셀)
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,0], // 행 7: 주먹 상단 (12픽셀)
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,0], // 행 8: 주먹 중상 (10픽셀로 축소)
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,0], // 행 9: 주먹 중하 (10픽셀)
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,0], // 행 10: 주먹 하단 (11픽셀로 확장)
+                [1,1,1,1,1,1,1,1,1,1,1,1,0,0], // 행 11: 손목 상단 (10픽셀로 확장)
+                [1,1,1,1,1,1,1,1,1,1,1,0,0,0], // 행 12: 손목 중단 (9픽셀로 확장)
+                [0,0,1,1,1,1,1,1,1,1,0,0,0,0]  // 행 13: 손목 하단
+            ];
+            
+            for (let y = 0; y < thumbsUpPattern.length; y++) {
+                for (let x = 0; x < thumbsUpPattern[y].length; x++) {
+                    if (thumbsUpPattern[y][x]) {
+                        const cube = new THREE.Mesh(geometry, material.clone());
+                        cube.position.set(
+                            (x - 6.5) * 0.09,  // x 중앙 정렬 (14픽셀의 중앙은 6.5)
+                            (thumbsUpPattern.length - y - 7) * 0.09,  // y 중앙 정렬
+                            0
+                        );
+                        cube.castShadow = true;
+                        group.add(cube);
+                    }
+                }
+            }
+            
+            return group;
+        }
+
+        // 타자 오브제 생성 (글리치 사람)
+        function createOtherObject() {
+            const group = new THREE.Group();
+            const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+            
+            // 글리치 효과를 위한 랜덤 색상
+            const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0x000000];
+            
+            // 사람 형태의 글리치 패턴
+            for (let i = 0; i < 40; i++) {
+                const material = new THREE.MeshLambertMaterial({ 
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true,
+                    opacity: Math.random() * 0.7 + 0.3
+                });
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.set(
+                    (Math.random() - 0.5) * 0.8,
+                    Math.random() * 1.5,
+                    (Math.random() - 0.5) * 0.8
+                );
+                cube.castShadow = true;
+                group.add(cube);
+            }
+            
+            return group;
+        }
+
+        // 동지 오브제 생성 (발광하는 흰색 네모들)
+        function createAllyObject(brightness = 1) {
+            const group = new THREE.Group();
+            const geometry = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+            
+            // 사람 형태의 흰색 네모 패턴
+            for (let i = 0; i < 35; i++) {
+                const material = new THREE.MeshLambertMaterial({ 
+                    color: 0xffffff,
+                    emissive: 0xffffff,
+                    emissiveIntensity: brightness * 0.3,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.set(
+                    (Math.random() - 0.5) * 0.6,
+                    Math.random() * 1.6,
+                    (Math.random() - 0.5) * 0.6
+                );
+                cube.castShadow = true;
+                group.add(cube);
+            }
+            
+            // 발광 효과
+            const light = new THREE.PointLight(0xffffff, brightness * 0.8, 6);
+            light.position.copy(group.position);
+            scene.add(light);
+            
+            return { mesh: group, light: light };
+        }
+
+        // 동지 오브제들을 생성하는 함수 (따봉 5개 수집 후 호출)
+        function spawnAllies() {
+            gameObjects.allies = [];
+            
+            gameObjects.allyPositions.forEach(pos => {
+                const ally = createAllyObject(2); // 더 밝게 시작
+                ally.mesh.position.set(
+                    pos.col * 3 + 1.5,
+                    0.75,
+                    pos.row * 3 + 1.5
+                );
+                ally.light.position.set(
+                    pos.col * 3 + 1.5,
+                    1.5,
+                    pos.row * 3 + 1.5
+                );
+                scene.add(ally.mesh);
+                gameObjects.allies.push({ 
+                    ...ally, 
+                    position: pos, 
+                    found: false 
+                });
+            });
+        }
+
+        function createGameObjects() {
+            // 빈 공간 찾기
+            const emptySpaces = [];
+            for (let row = 1; row < mazeLayout.length - 1; row++) {
+                for (let col = 1; col < mazeLayout[row].length - 1; col++) {
+                    if (mazeLayout[row][col] === 0) {
+                        // 시작 위치가 아닌 곳만
+                        if (!(row === 1 && col === 1)) {
+                            emptySpaces.push({ row, col });
+                        }
+                    }
+                }
+            }
+
+            // 좋아요 오브제 배치 (5개로 변경)
+            for (let i = 0; i < 5 && emptySpaces.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * emptySpaces.length);
+                const pos = emptySpaces.splice(randomIndex, 1)[0];
+                
+                const like = createLikeObject();
+                like.position.set(
+                    pos.col * 3 + 1.5,
+                    0.8,
+                    pos.row * 3 + 1.5
+                );
+                scene.add(like);
+                gameObjects.likes.push({ 
+                    mesh: like, 
+                    position: pos, 
+                    collected: false,
+                    originalY: 0.8
+                });
+            }
+
+            // 타자 오브제 배치 (4개)
+            for (let i = 0; i < 4 && emptySpaces.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * emptySpaces.length);
+                const pos = emptySpaces.splice(randomIndex, 1)[0];
+                
+                const other = createOtherObject();
+                other.position.set(
+                    pos.col * 3 + 1.5,
+                    0.75,
+                    pos.row * 3 + 1.5
+                );
+                scene.add(other);
+                gameObjects.others.push({ 
+                    mesh: other, 
+                    position: pos, 
+                    touched: false 
+                });
+            }
+
+            // 동지 오브제는 처음부터 생성하지 않음 - 따봉 5개 수집 후에 생성
+            // 대신 동지가 나타날 위치들을 미리 저장해둠
+            gameObjects.allyPositions = [];
+            for (let i = 0; i < 4 && emptySpaces.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * emptySpaces.length);
+                const pos = emptySpaces.splice(randomIndex, 1)[0];
+                gameObjects.allyPositions.push(pos);
+            }
+        }
+
+        function setupLighting() {
+            // 환경광
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+
+            // 방향성 조명
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            const mazeWidth = mazeLayout[0].length * 3;
+            const mazeHeight = mazeLayout.length * 3;
+            directionalLight.position.set(mazeWidth / 2, 20, mazeHeight / 2);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+        }
+
+        function setupEventListeners() {
+            // 키보드 이벤트
+            document.addEventListener('keydown', (event) => {
+                keys[event.code] = true;
+            });
+
+            document.addEventListener('keyup', (event) => {
+                keys[event.code] = false;
+            });
+
+            // 마우스 이벤트
+            let isPointerLocked = false;
+            
+            document.addEventListener('mousemove', (event) => {
+                if (isPointerLocked) {
+                    const mouseX = event.movementX || 0;
+                    const mouseY = event.movementY || 0;
+                    
+                    // 좌우 회전 (Y축)
+                    player.rotation.y -= mouseX * 0.002;
+                    
+                    // 상하 회전 (X축)
+                    camera.rotation.x -= mouseY * 0.002;
+                    camera.rotation.x = Math.max(-Math.PI/3, Math.min(Math.PI/3, camera.rotation.x));
+                }
+            });
+
+            // 포인터 락 이벤트
+            renderer.domElement.addEventListener('click', () => {
+                renderer.domElement.requestPointerLock();
+            });
+
+            document.addEventListener('pointerlockchange', () => {
+                isPointerLocked = document.pointerLockElement === renderer.domElement;
+            });
+
+            // 윈도우 리사이즈
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function handleMovement() {
+            if (gameState.gameOver || gameState.gameWon) return;
+
+            let moved = false;
+            const oldX = player.position.x;
+            const oldZ = player.position.z;
+
+            // WASD 키 체크
+            if (keys['KeyW']) {
+                const forward = new THREE.Vector3(0, 0, -moveSpeed);
+                forward.applyQuaternion(player.quaternion);
+                player.position.add(forward);
+                moved = true;
+            }
+            if (keys['KeyS']) {
+                const backward = new THREE.Vector3(0, 0, moveSpeed);
+                backward.applyQuaternion(player.quaternion);
+                player.position.add(backward);
+                moved = true;
+            }
+            if (keys['KeyA']) {
+                const left = new THREE.Vector3(-moveSpeed, 0, 0);
+                left.applyQuaternion(player.quaternion);
+                player.position.add(left);
+                moved = true;
+            }
+            if (keys['KeyD']) {
+                const right = new THREE.Vector3(moveSpeed, 0, 0);
+                right.applyQuaternion(player.quaternion);
+                player.position.add(right);
+                moved = true;
+            }
+
+            // 충돌 검사
+            if (moved) {
+                if (checkCollision(player.position.x, player.position.z)) {
+                    player.position.x = oldX;
+                    player.position.z = oldZ;
+                }
+            }
+        }
+
+        function checkCollision(x, z) {
+            const cellSize = 3;
+            const playerRadius = 0.4;
+            
+            const checkPoints = [
+                {x: x + playerRadius, z: z + playerRadius},
+                {x: x - playerRadius, z: z + playerRadius},
+                {x: x + playerRadius, z: z - playerRadius},
+                {x: x - playerRadius, z: z - playerRadius}
+            ];
+            
+            for (let point of checkPoints) {
+                const mazeCol = Math.floor(point.x / cellSize);
+                const mazeRow = Math.floor(point.z / cellSize);
+                
+                if (mazeRow < 0 || mazeRow >= mazeLayout.length || 
+                    mazeCol < 0 || mazeCol >= mazeLayout[0].length) {
+                    return true;
+                }
+                
+                if (mazeLayout[mazeRow][mazeCol] === 1) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function checkObjectInteractions() {
+            if (gameState.gameOver || gameState.gameWon) return;
+
+            const playerPos = player.position;
+            
+            // 좋아요 오브제 체크
+            gameObjects.likes.forEach(like => {
+                if (!like.collected) {
+                    const objPos = like.mesh.position;
+                    const distance = playerPos.distanceTo(objPos);
+                    if (distance < 1.2) {
+                        like.collected = true;
+                        like.mesh.visible = false;
+                        gameState.likes++;
+                        updateUI();
+                        
+                        // 5개를 모두 수집하면 동지들 생성
+                        if (gameState.likes >= 5) {
+                            spawnAllies();
+                        }
+                    }
+                }
+            });
+
+            // 타자 오브제 체크
+            gameObjects.others.forEach(other => {
+                if (!other.touched) {
+                    const objPos = other.mesh.position;
+                    const distance = playerPos.distanceTo(objPos);
+                    if (distance < 1.2) {
+                        other.touched = true;
+                        other.mesh.visible = false; // 타자 사라지게 함
+                        gameState.glitches++;
+                        updateUI();
+                        applyGlitchEffect(); // 글리치 효과 누적 적용
+                        
+                        if (gameState.glitches >= 4) {
+                            gameOver();
+                        }
+                    }
+                }
+            });
+
+            // 동지 오브제 체크 (동지들이 생성된 후에만)
+            if (gameObjects.allies.length > 0) {
+                gameObjects.allies.forEach(ally => {
+                    if (!ally.found) {
+                        const objPos = ally.mesh.position;
+                        const distance = playerPos.distanceTo(objPos);
+                        if (distance < 1.2) {
+                            ally.found = true;
+                            ally.mesh.visible = false;
+                            ally.light.visible = false;
+                            gameState.allies++;
+                            updateUI();
+                            
+                            if (gameState.allies >= 4) {
+                                gameWon();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateAllyBrightness() {
+            // 동지들이 생성되기 전에는 아무것도 하지 않음
+            if (gameObjects.allies.length === 0) return;
+            
+            const brightness = 1 + gameState.likes * 0.4;
+            gameObjects.allies.forEach(ally => {
+                if (!ally.found) {
+                    // 각 네모의 발광 강도 업데이트
+                    ally.mesh.children.forEach(cube => {
+                        cube.material.emissiveIntensity = brightness * 0.3;
+                    });
+                    ally.light.intensity = brightness * 0.8;
+                }
+            });
+        }
+
+        function applyGlitchEffect() {
+            // 기존 글리치 클래스들을 모두 제거
+            document.body.classList.remove('glitch', 'glitch-1', 'glitch-2', 'glitch-3', 'glitch-4');
+            
+            // 접촉한 타자 수에 따라 글리치 레벨 적용
+            if (gameState.glitches > 0) {
+                document.body.classList.add(`glitch-${gameState.glitches}`);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('likes').textContent = gameState.likes;
+            document.getElementById('glitches').textContent = gameState.glitches;
+            document.getElementById('allies').textContent = gameState.allies;
+        }
+
+        function gameOver() {
+            gameState.gameOver = true;
+            
+            // 최대 글리치 상태 유지
+            document.body.classList.remove('glitch', 'glitch-1', 'glitch-2', 'glitch-3');
+            document.body.classList.add('glitch-4');
+            
+            document.getElementById('message').innerHTML = 'GAME OVER<br><br>you are absorbed by THEM';
+            document.getElementById('message').style.display = 'block';
+            
+            // 블랙아웃 없이 글리치 상태에서 게임 오버
+        }
+
+        function gameWon() {
+            gameState.gameWon = true;
+            document.getElementById('message').innerHTML = "GAME OVER..?";
+            document.getElementById('message').style.display = 'block';
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            handleMovement();
+            checkObjectInteractions();
+            
+            // 좋아요 오브제 애니메이션 (떠다니기)
+            gameObjects.likes.forEach((like, index) => {
+                if (!like.collected) {
+                    like.mesh.rotation.y += 0.02;
+                    like.mesh.position.y = like.originalY + Math.sin(Date.now() * 0.003 + index) * 0.1;
+                }
+            });
+
+            // 타자 오브제 애니메이션 (글리치 효과) - 접촉하지 않은 것만
+            gameObjects.others.forEach(other => {
+                if (!other.touched) {
+                    other.mesh.rotation.y += 0.05;
+                    other.mesh.children.forEach(child => {
+                        child.material.opacity = Math.random() * 0.7 + 0.3;
+                        if (Math.random() < 0.1) {
+                            const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0x000000];
+                            child.material.color.setHex(colors[Math.floor(Math.random() * colors.length)]);
+                        }
+                    });
+                }
+            });
+
+            // 동지 오브제 애니메이션 (발광하는 흰색 네모들이 떠다님)
+            if (gameObjects.allies.length > 0) {
+                gameObjects.allies.forEach((ally, index) => {
+                    if (!ally.found) {
+                        ally.mesh.rotation.y += 0.01;
+                        const pulse = Math.sin(Date.now() * 0.005 + index) * 0.1 + 0.9;
+                        ally.light.intensity = (1 + gameState.likes * 0.4) * 0.8 * pulse;
+                        
+                        // 각 네모들이 부유하는 효과
+                        ally.mesh.children.forEach((cube, cubeIndex) => {
+                            const time = Date.now() * 0.003 + cubeIndex * 0.1;
+                            cube.position.y += Math.sin(time) * 0.002;
+                            cube.position.x += Math.cos(time * 0.7) * 0.001;
+                            cube.position.z += Math.sin(time * 0.5) * 0.001;
+                            
+                            // 밝기 변화
+                            const brightness = 1 + gameState.likes * 0.4;
+                            cube.material.emissiveIntensity = brightness * 0.3 * pulse;
+                        });
+                    }
+                });
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // 시작
+        init();
+    </script>
+</body>
+</html>
